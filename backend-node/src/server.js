@@ -27,6 +27,14 @@ app.use(
 app.use(express.json({ strict: false }));
 app.use(morgan("dev"));
 
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "InterviewIQ API — use /api/health for a quick check.",
+    health: "/api/health"
+  });
+});
+
 app.get("/api/health", (req, res) => {
   res.json({ success: true, message: "Node backend is running" });
 });
