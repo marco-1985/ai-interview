@@ -51,7 +51,7 @@ async function start() {
 
   app.listen(env.port, () => {
     console.log(`Backend listening on http://localhost:${env.port}`);
-  });
+   });
 }
 
 start().catch((error) => {

@@ -34,7 +34,6 @@ const InterviewRoom = ({ user }) => {
   useEffect(() => {
     fetchInterviewData();
     
-    // Cleanup function to stop media streams when component unmounts
     return () => {
       if (videoStream) {
         videoStream.getTracks().forEach(track => track.stop());
@@ -55,7 +54,6 @@ const InterviewRoom = ({ user }) => {
   }, [timeRemaining, isStarted]);
 
   useEffect(() => {
-    // Attach video stream to video element when it changes
     if (videoRef.current && videoStream) {
       videoRef.current.srcObject = videoStream;
     }
@@ -66,7 +64,6 @@ const InterviewRoom = ({ user }) => {
       const interviewResponse = await interviewService.getInterviewById(id);
       setInterview(interviewResponse.data);
       
-      // Generate questions for this interview
       const questionsResponse = await interviewService.getQuestions({
         interviewId: id,
         course: interviewResponse.data.course,
@@ -95,7 +92,7 @@ const InterviewRoom = ({ user }) => {
   };
 
   const handleNextQuestion = async () => {
-    // Submit current answer
+  
     if (currentQuestion && answer.trim()) {
       try {
         const submitResponse = await interviewService.submitAnswer(id, {
@@ -118,19 +115,39 @@ const InterviewRoom = ({ user }) => {
       setLastFeedback(null);
       setTimeRemaining(120);
     } else {
-      // Complete interview
+    
       handleCompleteInterview();
     }
   };
 
   const handleCompleteInterview = async () => {
-    try {
-      await interviewService.completeInterview(id);
-      navigate(`/results/${id}`);
-    } catch (error) {
-      console.error('Failed to complete interview:', error);
+  try {
+
+    if (videoStream) {
+      videoStream.getTracks().forEach(track => track.stop());
+      setVideoStream(null);
+      setIsVideoEnabled(false);
     }
-  };
+
+    if (audioStream) {
+      audioStream.getTracks().forEach(track => track.stop());
+      setAudioStream(null);
+      setIsAudioEnabled(false);
+    }
+
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+
+    await interviewService.completeInterview(id);
+
+    
+    navigate(`/results/${id}`);
+
+  } catch (error) {
+    console.error('Failed to complete interview:', error);
+  }
+};
 
   const toggleVideo = async () => {
     if (!isVideoEnabled) {
@@ -145,7 +162,7 @@ const InterviewRoom = ({ user }) => {
         setVideoStream(stream);
         setIsVideoEnabled(true);
         
-        // Attach stream to video element
+    
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
@@ -162,7 +179,7 @@ const InterviewRoom = ({ user }) => {
       }
       setIsVideoEnabled(false);
       
-      // Clear video element
+    
       if (videoRef.current) {
         videoRef.current.srcObject = null;
       }
@@ -177,7 +194,6 @@ const InterviewRoom = ({ user }) => {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         setAudioStream(stream);
         setIsAudioEnabled(true);
-        // In a real implementation, you'd attach this stream to an audio element
         console.log('Microphone enabled');
       } catch (error) {
         console.error('Failed to enable microphone:', error);
@@ -195,7 +211,7 @@ const InterviewRoom = ({ user }) => {
 
   const toggleRecording = () => {
     setIsRecording(!isRecording);
-    // Implement actual recording logic here
+
   };
 
   if (loading) {

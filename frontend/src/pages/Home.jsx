@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
-  PlayIcon,
   ShieldCheckIcon,
   AcademicCapIcon,
   ChartBarIcon,
@@ -23,36 +22,42 @@ const Home = ({ user }) => {
       description: 'Smart question generation based on your field and experience level',
       icon: SparklesIcon,
       color: 'from-blue-500 to-purple-600',
+      route: '/ai-questions',
     },
     {
       name: 'Real-time Feedback',
       description: 'Get instant analysis of your answers with detailed insights',
       icon: ChartBarIcon,
       color: 'from-green-500 to-teal-600',
+      route: '/feedback',
     },
     {
       name: 'Mock Interviews',
       description: 'Practice with realistic interview scenarios and time constraints',
       icon: AcademicCapIcon,
       color: 'from-orange-500 to-red-600',
+      route: '/mock-test',
     },
     {
       name: 'Progress Tracking',
       description: 'Monitor your improvement over time with detailed analytics',
       icon: ChartBarIcon,
       color: 'from-purple-500 to-pink-600',
+      route: '/progress',
     },
     {
       name: 'Secure Platform',
       description: 'Your data is protected with enterprise-grade security',
       icon: ShieldCheckIcon,
       color: 'from-indigo-500 to-blue-600',
+      route: '/features',
     },
     {
       name: '24/7 Availability',
       description: 'Practice anytime, anywhere with our always-available platform',
       icon: ClockIcon,
       color: 'from-yellow-500 to-orange-600',
+      route: '/features',
     },
   ];
 
@@ -215,8 +220,15 @@ const Home = ({ user }) => {
             >
               <div className="relative z-10">
                 <div className="glassmorphism rounded-2xl p-8 shadow-2xl">
-                  <div className="aspect-video bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                    <PlayIcon className="w-16 h-16 text-white" />
+                  <div className="aspect-video rounded-lg overflow-hidden bg-black">
+                    <iframe
+                      className="w-full h-full"
+                      src="https://www.youtube.com/embed/9EOb0E0SlkI?autoplay=1&mute=1&controls=0&rel=0&modestbranding=1&playsinline=1&loop=1&playlist=9EOb0E0SlkI"
+                      title="InterviewIQ Demo Video"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen
+                    />
                   </div>
                   <div className="mt-6 space-y-4">
                     <div className="flex items-center justify-between">
@@ -279,7 +291,10 @@ const Home = ({ user }) => {
                 transition={{ duration: 0.8, delay: index * 0.1 }}
                 className="group"
               >
-                <div className="h-full p-6 bg-gray-50 dark:bg-gray-900 rounded-xl hover:shadow-lg transition-shadow">
+                <Link
+                  to={feature.route}
+                  className="block h-full p-6 bg-gray-50 dark:bg-gray-900 rounded-xl hover:shadow-lg transition-shadow"
+                >
                   <div className={`w-12 h-12 bg-gradient-to-r ${feature.color} rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                     <feature.icon className="w-6 h-6 text-white" />
                   </div>
@@ -289,7 +304,11 @@ const Home = ({ user }) => {
                   <p className="text-gray-600 dark:text-gray-300">
                     {feature.description}
                   </p>
-                </div>
+                  <span className="inline-flex items-center text-blue-600 dark:text-blue-400 mt-4">
+                    View details
+                    <ArrowRightIcon className="w-4 h-4 ml-1" />
+                  </span>
+                </Link>
               </motion.div>
             ))}
           </div>
