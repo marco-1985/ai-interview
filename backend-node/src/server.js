@@ -12,10 +12,28 @@ import { requireAuth } from "./middleware/auth.js";
 
 const app = express();
 
+function isHttpsVercelAppOrigin(origin) {
+  try {
+    const u = new URL(origin);
+    return u.protocol === "https:" && u.hostname.endsWith(".vercel.app");
+  } catch {
+    return false;
+  }
+}
+
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || env.frontendOrigins.includes(origin)) {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      const normalized = origin.replace(/\/+$/, "");
+      if (env.frontendOrigins.includes(normalized)) {
+        callback(null, true);
+        return;
+      }
+      if (env.corsAllowVercelApp && isHttpsVercelAppOrigin(normalized)) {
         callback(null, true);
         return;
       }
@@ -32,6 +50,15 @@ app.get("/", (req, res) => {
     success: true,
     message: "InterviewIQ API — use /api/health for a quick check.",
     health: "/api/health"
+  });
+});
+
+app.get("/api", (req, res) => {
+  res.json({
+    success: true,
+    message: "API is mounted here; there is no resource at GET /api alone.",
+    health: "/api/health",
+    auth: "/api/auth"
   });
 });
 
@@ -56,6 +83,10 @@ async function start() {
   validateEnv();
   await connectDb();
   initFirebaseAdmin();
+
+  console.log(
+    `CORS: FRONTEND_URLS count=${env.frontendOrigins.length}, CORS_ALLOW_VERCEL_APP=${env.corsAllowVercelApp}`
+  );
 
   app.listen(env.port, () => {
     console.log(`Backend listening on http://localhost:${env.port}`);
