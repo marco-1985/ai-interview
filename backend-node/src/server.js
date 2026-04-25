@@ -13,6 +13,15 @@ import { requireAuth } from "./middleware/auth.js";
 const app = express();
 const normalizeOrigin = (origin) => origin.trim().replace(/\/+$/, "").toLowerCase();
 
+function isHttpsVercelAppOrigin(origin) {
+  try {
+    const u = new URL(origin);
+    return u.protocol === "https:" && u.hostname.endsWith(".vercel.app");
+  } catch {
+    return false;
+  }
+}
+
 app.use(
   cors({
     origin: (origin, callback) => {
@@ -26,6 +35,11 @@ app.use(
         callback(null, true);
         return;
       }
+
+      if (env.corsAllowVercelApp && isHttpsVercelAppOrigin(requestOrigin)) {
+        callback(null, true);
+        return;
+      }
       callback(new Error(`CORS blocked for origin: ${origin}`));
     },
     credentials: true
@@ -33,6 +47,23 @@ app.use(
 );
 app.use(express.json({ strict: false }));
 app.use(morgan("dev"));
+
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "InterviewIQ API — use /api/health for a quick check.",
+    health: "/api/health"
+  });
+});
+
+app.get("/api", (req, res) => {
+  res.json({
+    success: true,
+    message: "API is mounted here; there is no resource at GET /api alone.",
+    health: "/api/health",
+    auth: "/api/auth"
+  });
+});
 
 app.get("/api/health", (req, res) => {
   res.json({ success: true, message: "Node backend is running" });
@@ -55,6 +86,10 @@ async function start() {
   validateEnv();
   await connectDb();
   initFirebaseAdmin();
+
+  console.log(
+    `CORS: FRONTEND_URLS count=${env.frontendOrigins.length}, CORS_ALLOW_VERCEL_APP=${env.corsAllowVercelApp}`
+  );
 
   app.listen(env.port, () => {
     console.log(`Backend listening on http://localhost:${env.port}`);

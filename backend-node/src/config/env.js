@@ -11,6 +11,8 @@ export const env = {
     .split(",")
     .map((origin) => normalizeOrigin(origin))
     .filter(Boolean),
+  corsAllowVercelApp:
+    String(process.env.CORS_ALLOW_VERCEL_APP || "false").toLowerCase() === "true",
   mongoUri: process.env.MONGODB_URI,
   mongoDb: process.env.MONGODB_DB || "interviewiq",
   jwtSecret: process.env.JWT_SECRET,
