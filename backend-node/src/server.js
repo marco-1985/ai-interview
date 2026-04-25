@@ -11,11 +11,18 @@ import resultRoutes from "./routes/results.js";
 import { requireAuth } from "./middleware/auth.js";
 
 const app = express();
+const normalizeOrigin = (origin) => origin.trim().replace(/\/+$/, "").toLowerCase();
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || env.frontendOrigins.includes(origin)) {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      const requestOrigin = normalizeOrigin(origin);
+      if (env.frontendOrigins.includes(requestOrigin)) {
         callback(null, true);
         return;
       }

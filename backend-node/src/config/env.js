@@ -2,12 +2,14 @@ import dotenv from "dotenv";
 
 dotenv.config({ override: true });
 
+const normalizeOrigin = (origin) => origin.trim().replace(/\/+$/, "").toLowerCase();
+
 export const env = {
   port: Number(process.env.PORT || 8081),
   nodeEnv: process.env.NODE_ENV || "development",
   frontendOrigins: (process.env.FRONTEND_URLS || process.env.FRONTEND_URL || "http://localhost:5173")
     .split(",")
-    .map((origin) => origin.trim())
+    .map((origin) => normalizeOrigin(origin))
     .filter(Boolean),
   mongoUri: process.env.MONGODB_URI,
   mongoDb: process.env.MONGODB_DB || "interviewiq",
